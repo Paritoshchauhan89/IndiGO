@@ -1,34 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import FlightStatus from './components/FlightStatus';
-import NotificationSettings from './components/NotificationSettings';
-import { requestForToken, onMessageListener } from '../src/components/firebase';
+import React from 'react'
+import {Routes , Route } from 'react-router-dom'
+import Home from './pages/Home'
+import Casestudy from './pages/Casestudy'
+import About from './pages/About'
+import Contact from './pages/Contact'
+import NotificationForm from './components/NotificationForm'
+import Dashboard from './components/Admin/Dashboard'
 
 const App = () => {
-  const flightId = 'flight123';
-  const [isTokenFound, setTokenFound] = useState(false);
-
-  useEffect(() => {
-    requestForToken(setTokenFound);
-  }, []);
-
-  useEffect(() => {
-    if (isTokenFound) {
-      onMessageListener()
-        .then(payload => {
-          console.log('Message received. ', payload);
-          // Display notification
-        })
-        .catch(err => console.log('failed: ', err));
-    }
-  }, [isTokenFound]);
-
   return (
-    <div>
-      <h1>Flight Status and Notifications</h1>
-      <FlightStatus flightId={flightId} />
-      <NotificationSettings flightId={flightId} />
-    </div>
-  );
-};
+  <Routes>
+    <Route excat path='/' element={<Home/>}/>
+ <Route path='/case-study' element={<Casestudy/>}/>
+ <Route path='/about-project' element={<About/>}/>
+ <Route path='/contact' element={<Contact/>}/>
+ <Route path='/notify-me' element={<NotificationForm/>}/>
+ <Route path='/admin-dashboard' element={<Dashboard/>}/>
 
-export default App;
+  </Routes>
+  )
+}
+
+export default App
