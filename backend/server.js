@@ -1,95 +1,45 @@
 import express from 'express';
-import mongoose from 'mongoose';
-import http from 'http';
-import { Server } from 'socket.io';
-import admin from './config/firebase.js'; // Import Firebase Admin
-import Flight from './models/Flight.js';
-import Subscription from './models/Subscription.js';
 import dotenv from 'dotenv';
+import Connection from './database/db.js';
+import cors from 'cors';
+import morgan from 'morgan';
+import Notificationform from './routes/notificationRoute.js';
+import Auth from './routes/authRoute.js';
+import Flights from './routes/flightRoute.js';
 
+// Configure environment variables
 dotenv.config();
 
+// Database connection
+Connection();
+
+// Initialize Express application
 const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
 
-// Connect to MongoDB using environment variables
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected'))
-  .catch(error => console.error('MongoDB connection error:', error));
-
+// Middleware
+app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(morgan('dev'));
 
-app.get('/api/flights/:id/status', async (req, res) => {
-  try {
-    const flight = await Flight.findById(req.params.id);
-    if (!flight) {
-      return res.status(404).json({ message: 'Flight not found' });
-    }
-    res.json({ status: flight.status });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
+// Routes
+app.use('/api/v1/auth', Auth);
+app.use('/api/v1/notification', Notificationform);
+app.use('/api/v1/flight', Flights);
+
+// Root route
+app.get('/', (req, res) => {
+  res.send('<h1>Indigo is Live</h1>');
 });
 
-app.put('/api/flights/:id/status', async (req, res) => {
-  try {
-    const flight = await Flight.findById(req.params.id);
-    if (!flight) {
-      return res.status(404).json({ message: 'Flight not found' });
-    }
-    flight.status = req.body.status;
-    await flight.save();
-    io.emit(`flight-status-${req.params.id}`, { status: flight.status });
-
-    // Send FCM notifications
-    const subscriptions = await Subscription.find({ flightId: req.params.id });
-
-    const notificationPromises = subscriptions.map(subscription => {
-      const message = {
-        notification: {
-          title: 'Flight Status Update',
-          body: `Flight ${req.params.id} status: ${flight.status}`
-        },
-        token: subscription.contact // Assumes contact is the FCM token
-      };
-      return admin.messaging().send(message);
-    });
-
-    Promise.all(notificationPromises)
-      .then(responses => {
-        responses.forEach(response => console.log('Successfully sent message:', response));
-      })
-      .catch(error => {
-        console.error('Error sending messages:', error);
-      });
-
-    res.json({ status: flight.status });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something went wrong!');
 });
 
-app.post('/api/notifications/subscribe', async (req, res) => {
-  try {
-    const { flightId, method, contact } = req.body; // Assumes method is 'FCM' and contact is FCM token
-    const subscription = new Subscription({ flightId, method, contact });
-    await subscription.save();
-    res.json({ message: 'Subscribed successfully!' });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
-
-io.on('connection', (socket) => {
-  console.log('New client connected');
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-  });
-});
-
-// Use environment variable for port number
-const port = process.env.PORT || 5000;
-server.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+// Start server
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => 
+  console.log(`Server is running at http://localhost:${PORT}`.bgCyan.white)
+);

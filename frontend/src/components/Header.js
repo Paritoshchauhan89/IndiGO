@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import Login from './Login'; // Adjust the path as needed
+import Login from './Admin/Login'; // Adjust the path as needed
 import Register from './Admin/Register'; // Adjust the path as needed
 
 const Header = () => {
@@ -75,12 +75,8 @@ const Header = () => {
           >
             Admin Login
           </button>
-          <button
-            className="px-4 py-2 bg-custom-blue text-white rounded hover:bg-blue-600"
-            onClick={openRegisterModal}
-          >
-            Register
-          </button>
+         
+      
         </nav>
 
         <div className="md:hidden">
@@ -148,12 +144,7 @@ const Header = () => {
           >
             Admin Login
           </button>
-          <button
-            className="w-full px-4 py-2 mt-2 bg-custom-blue text-white rounded"
-            onClick={openRegisterModal}
-          >
-            Register
-          </button>
+       
         </div>
       )}
 

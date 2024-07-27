@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../Header';
+import FlightForm from '../Flights/FlightForm';
+import FlightTable from '../FlightTable';
+import FlightStatus from '../FlightStatus';
+import NotificationsTable from '../NotificationTable';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('home');
@@ -32,6 +36,7 @@ const Dashboard = () => {
               &gt;
             </button>
             <h1 className="text-xl font-bold mb-6">Dashboard</h1>
+            
             <nav className="space-y-4">
               <Link
                 to="#"
@@ -45,7 +50,14 @@ const Dashboard = () => {
                 onClick={() => handleTabClick('about')}
                 className={`block text-gray-300 hover:text-white ${activeTab === 'about' ? 'text-yellow-500' : ''}`}
               >
-                All Users
+                All Notify Users
+              </Link>
+              <Link
+                to="#"
+                onClick={() => handleTabClick('flight-status')}
+                className={`block text-gray-300 hover:text-white ${activeTab === 'about' ? 'text-yellow-500' : ''}`}
+              >
+                Flight Status
               </Link>
               <Link
                 to="#"
@@ -59,7 +71,7 @@ const Dashboard = () => {
                 onClick={() => handleTabClick('contact')}
                 className={`block text-gray-300 hover:text-white ${activeTab === 'contact' ? 'text-yellow-500' : ''}`}
               >
-                Preference Flights
+                Add Flights
               </Link>
             </nav>
             <footer className="absolute bottom-4 left-4 text-gray-400">
@@ -96,20 +108,23 @@ const Dashboard = () => {
           )}
           {activeTab === 'about' && (
             <div>
-              <h2 className="text-2xl font-bold">All Users</h2>
-              <p>Learn more about us on this page.</p>
+              <h2 className="text-2xl font-bold">All Prference Flight Users</h2>
+              <NotificationsTable/>
+            </div>
+          )}
+              {activeTab === 'flight-status' && (
+            <div>
+            <FlightStatus/>
             </div>
           )}
           {activeTab === 'services' && (
             <div>
-              <h2 className="text-2xl font-bold">All Flights</h2>
-              <p>Discover the services we offer.</p>
+             <FlightTable/>
             </div>
           )}
           {activeTab === 'contact' && (
             <div>
-              <h2 className="text-2xl font-bold">Preference Flights</h2>
-              <p>Get in touch with us here.</p>
+             <FlightForm/>
             </div>
           )}
         </div>

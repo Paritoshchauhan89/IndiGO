@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios'; // For making HTTP requests
+import Layout from '../Layout/Layout'
+
+
+const baseURL = process.env.REACT_APP_API_BASE_URL;
+
 
 const NotificationForm = () => {
   const [fullName, setFullName] = useState('');
@@ -11,7 +16,7 @@ const NotificationForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('/api/notifications', {
+      await axios.post(`${baseURL}/api/v1/notification/notifications`, {
         fullName,
         email,
         contactNumber,
@@ -27,12 +32,14 @@ const NotificationForm = () => {
       setNotificationType('email');
     } catch (error) {
       console.error('Error submitting form:', error);
-      alert('Failed to save notification preference.');
+      // Display more detailed error message
+      alert(`Failed to save notification preference. ${error.response ? error.response.data.message : error.message}`);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto p-6 bg-white rounded shadow-md">
+   <Layout title={'Get Update'}>
+     <div className="max-w-md mx-auto p-6 bg-white rounded shadow-md m-6">
       <h2 className="text-2xl font-bold mb-6 text-center">Register for Flight Notifications</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="relative">
@@ -145,6 +152,7 @@ const NotificationForm = () => {
         </button>
       </form>
     </div>
+   </Layout>
   );
 };
 
